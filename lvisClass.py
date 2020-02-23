@@ -57,7 +57,7 @@ class lvisData(object):
       self.bounds=self.dumpBounds()
       return
 
-    # dertermine which are in region of interest
+    # determine which are in region of interest
     useInd=np.where((tempLon>=minX)&(tempLon<maxX)&(tempLat>=minY)&(tempLat<maxY))
     if(len(useInd)>0):
       useInd=useInd[0]

@@ -8,7 +8,7 @@ Some example functions for processing LVIS data
 import numpy as np
 from lvisClass import lvisData
 from pyproj import Proj, transform
-from scipy.ndimage.filters import gaussian_filter1d 
+from scipy.ndimage.filters import gaussian_filter1d
 
 
 #######################################
@@ -56,12 +56,14 @@ class lvisGround(lvisData):
     Find centre of gravity of denoised waveforms
     '''
 
-    # allocate space for ground elevation
-    self.zG=np.full(self.nWaves,-999.9)  # no data flag for now
+    # allocate space and put no data flags
+    self.zG=np.full((self.nWaves),-999.0)
 
-    from sys import exit
-    print("CofG function not finished. Use online resources to finish")
-    exit()
+    # loop over waveforms
+    for i in range(0,self.nWaves):
+      if(np.sum(self.denoised[i])>0.0):   # avoid empty waveforms (clouds etc)
+        self.zG[i]=np.average(self.z[i],weights=self.denoised[i])
+
 
 
   #######################################################
@@ -135,4 +137,3 @@ class lvisGround(lvisData):
 
 
 #############################################################
-
