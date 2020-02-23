@@ -52,19 +52,22 @@ class lvisData(object):
 
     # write out bounds and leave if needed
     if(onlyBounds):
-      self.lon=tempLon
-      self.lat=tempLat
-      self.bounds=self.dumpBounds()
-      return
+        self.lon=tempLon
+        self.lat=tempLat
+        self.bounds=self.dumpBounds()
+        return
 
     # determine which are in region of interest
     useInd=np.where((tempLon>=minX)&(tempLon<maxX)&(tempLat>=minY)&(tempLat<maxY))
+    self.nodataflag = 0 #flag set to 0 if there is data, 1 if theres no data
     if(len(useInd)>0):
-      useInd=useInd[0]
+        useInd=useInd[0]
+        self.nodataflag = 0
 
     if(len(useInd)==0):
-      print("No data contained in that region")
-      return
+        self.nodataflag = 1
+        print("No data contained in that region")
+        return
 
     # save the subset of all data
     self.nWaves=len(useInd)
