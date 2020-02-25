@@ -8,7 +8,8 @@ from gdal import Warp
 import numpy as np
 import argparse
 import os
-
+import rasterio
+from rasterio.merge import merge
 
 from handleTiff import tiffHandle
 
@@ -29,13 +30,45 @@ def getCmdArgs():
 
 
 ##########################################
+
+def mergeTiffs():
+
+    '''Merges subsetted 2015 tiffs'''
+
+    path = '/home/s2002365/oosa/project/code'
+    out_file = '/home/s2002365/oosa/project/code/merged_2015.tif'
+    rasters_2015 = [f for f in os.listdir(path) if f.endswith('.tif') and not f.endswith('data.tif')]
+    unmerged_2015 = []
+    for raster in rasters_2015:
+        src = rasterio.open(raster)
+        unmerged_2015.append(src) #works in python shell when testing
+
+    # Merge function returns merged single raster and transform info
+    merge_2015, out_trans = merge(unmerged_2015)
+
+    #copy the metadata
+    out_meta = src.meta.copy()
+
+    #update metadata
+    out_meta.update({"driver": "Gtiff",
+                     "height": merge_2015.shape[1],
+                     "width": merge_2015.shape[2],
+                     "transform": out_trans,
+                     "crs": "+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+                     }
+                    )
+    #write raster to disk
+    with rasterio.open(out_file, "w", **out_meta) as dest:
+        dest.write(merge_2015)
+
+##########################################
 # main
 if __name__ == '__main__':
+
   # read the command line
   cmdargs=getCmdArgs()
 
-
-  '''batch process 2015 data, with bounds'''
+  '''STAGE 1: batch process 2015 data, with bounds to subset'''
 
   subset =cmdargs.subset
   res = cmdargs.res
@@ -70,3 +103,9 @@ if __name__ == '__main__':
                   lvis.estimateGround()
                   lvis.reproject(4326,3031)
                   lvis.writeTiff(lvis.zG,res,outName)
+
+  '''STAGE 2: merge the subsetted 2015 tiffs into one mosaicked raster'''
+  mergeTiffs()
+
+
+  '''STAGE 3: fill the gaps of the mosaicked raster''' 

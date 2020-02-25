@@ -17,7 +17,7 @@ from processLVIS import lvisGround
 
 #######################################################
 
-class tiffHandle(lvisGround):
+class tiffHandle():
   '''
   Class to handle geotiff files
   '''
@@ -64,10 +64,9 @@ class tiffHandle(lvisGround):
     print("Image written to",filename)
     return
 
+    ########################################
 
-  ########################################
-
-  def readTiff(self,filename,epsg=27700):
+  def readTiff(self,filename,epsg=3031):
     '''
     Read a geotiff in to RAM
     '''
