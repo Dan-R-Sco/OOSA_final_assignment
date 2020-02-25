@@ -2,8 +2,8 @@
 #######################################################
 # import necessary packages
 
-from osgeo import gdal             # pacage for handling geotiff data
-from osgeo import osr              # pacage for handling projection information
+from osgeo import gdal             # package for handling geotiff data
+from osgeo import osr              # package for handling projection information
 from gdal import Warp
 import numpy as np
 import argparse
@@ -34,9 +34,9 @@ if __name__ == '__main__':
   cmdargs=getCmdArgs()
 
   #sets filename as the input from the command line parser
-  inName=cmdargs.inName
+  #inName=cmdargs.inName
   res = cmdargs.res
-  outName = cmdargs.outName
+  #outName = cmdargs.outName
 
   # if using bounds
     # initialise class, find bounds
@@ -60,26 +60,3 @@ if __name__ == '__main__':
   lvis.reproject(4326,3031)
   #write tiff for bounds
   lvis.writeTiff(lvis.zG,res,outName)
-
-
-  '''batch process 2015 data, with bounds'''
-'''
-  path = '/geos/netdata/avtrain/data/3d/oosa/assignment/lvis/2015/'
-  h5_files = [f for f in os.listdir(path) if f.endswith('.h5')] #produces list of h5 files in 2015 directory
-  for i in h5_files:
-      inName= str(path) + str(i)
-      outName = str(i[26:-3]) + '.tif'
-      print(outName)
-      print(inName)
-      b=tiffHandle(inName,onlyBounds=True)
-      x0=b.bounds[0]
-      y0=b.bounds[1]
-      x1=(b.bounds[2]-b.bounds[0])/150+b.bounds[0]
-      y1=(b.bounds[3]-b.bounds[1])/150+b.bounds[1]
-      lvis=tiffHandle(inName,minX=x0,minY=y0,maxX=x1,maxY=y1)
-      if lvis.nodataflag == 0:
-          lvis.setElevations()
-          lvis.estimateGround()
-          lvis.reproject(4326,3031)
-          lvis.writeTiff(lvis.zG,res,outName)
-'''
