@@ -21,8 +21,8 @@ def getCmdArgs():
     Read commandline arguments
     '''
     p = argparse.ArgumentParser(description=("Command line parser to provide filename and resolution"))
-    p.add_argument("--input", dest ="inName", type=str, default="/geos/netdata/avtrain/data/3d/oosa/assignment/lvis/2015/ILVIS1B_AQ2015_1017_R1605_067952.h5", help=("Input file \nDefault = 10/17/2015"))
-    p.add_argument("--output", dest ="outName", type=str, default="data.tif", help=("Input file \nDefault = data.tif"))
+    p.add_argument("--input", dest ="inFilename", type=str, default="/home/s2002365/oosa/project/code/0582360.tif", help=("Input file \nDefault = 2015 Mosaicked Raster"))
+    #p.add_argument("--output", dest ="outName", type=str, default="data.tif", help=("Input file \nDefault = data.tif"))
     p.add_argument("--res", dest = "res", type=int, default=100, help=("Resolution of data processing \nDefault=10m"))
     p.add_argument("--subset", dest = "subset", type=int, default=3)
     cmdargs = p.parse_args()
@@ -62,13 +62,48 @@ def mergeTiffs():
         dest.write(merge_2015)
 
 ##########################################
+
+class gapFillTiff(tiffHandle):
+
+    '''class to add gap fill function to tiffHandle class'''
+
+    def gapFill(self, data):
+
+        '''fills gaps in DEM'''
+
+        window = 30
+        self.array = np.copy(data)
+        print(self.array.shape)#accounts for impact of array edg
+        for i in range(window,(self.nY-window)):
+            for j in range(window, (self.nX-window)):
+                if self.array[i][j] == -999.0:
+                    box = self.array[i-window: i+window, j-window: j+window] #creates temp variable for window array
+                    tempFocalSum = 0
+                    cellsVisited = 0
+                    focalMean =0
+                    #iterate through window to find pixels with data
+                    for row in box:
+                        for x in row:
+                            if x >-100:
+                                tempFocalSum += x
+                                cellsVisited += 1
+                    #calculate focal mean
+                    if cellsVisited > 0:
+                        focalMean = tempFocalSum/cellsVisited
+                    print(tempFocalSum, cellsVisited, focalMean)
+                    #fill in gaps in array with focal mean
+                    if focalMean > 0:
+                        self.array[i][j] = focalMean
+
+##########################################
+
 # main
 if __name__ == '__main__':
 
   # read the command line
   cmdargs=getCmdArgs()
 
-  '''STAGE 1: batch process 2015 data, with bounds to subset'''
+  '''STAGE 1: batch process 2015 data, with bounds to subset
 
   subset =cmdargs.subset
   res = cmdargs.res
@@ -104,8 +139,13 @@ if __name__ == '__main__':
                   lvis.reproject(4326,3031)
                   lvis.writeTiff(lvis.zG,res,outName)
 
-  '''STAGE 2: merge the subsetted 2015 tiffs into one mosaicked raster'''
-  mergeTiffs()
+  STAGE 2: merge the subsetted 2015 tiffs into one mosaicked raster
+  mergeTiffs()'''
 
 
-  '''STAGE 3: fill the gaps of the mosaicked raster''' 
+  '''STAGE 3: fill the gaps of the mosaicked raster'''
+  filename = cmdargs.inFilename
+  b=gapFillTiff()
+  b.readTiff(filename)
+  b.gapFill(b.data)
+  b.writeTiff(b.array, 100, "gapFillTest5.tif")

@@ -30,27 +30,29 @@ class tiffHandle():
     '''
 
     # determine bounds
-    minX=np.min(self.lon)
-    maxX=np.max(self.lon)
-    minY=np.min(self.lat)
-    maxY=np.max(self.lat)
+    #minX=np.min(self.lon)
+    #maxX=np.max(self.lon)
+    #minY=np.min(self.lat)
+    #maxY=np.max(self.lat)
 
     # determine image size
-    nX=int((maxX-minX)/res+1)
-    nY=int((maxY-minY)/res+1)
+    #nX=int((maxX-minX)/res+1)
+    #nY=int((maxY-minY)/res+1)
 
     # pack in to array
-    imageArr=np.full((nY,nX),-999.0)        # make an array of missing data flags
-    xInds=np.array((self.lon-minX)/res,dtype=int)  # determine which pixels the data lies in
-    yInds=np.array((maxY-self.lat)/res,dtype=int)  # determine which pixels the data lies in
+    #imageArr=np.full((nY,nX),-999.0)        # make an array of missing data flags
+    #xInds=np.array((self.lon-minX)/res,dtype=int)  # determine which pixels the data lies in
+    #yInds=np.array((maxY-self.lat)/res,dtype=int)  # determine which pixels the data lies in
     # this is a simple pack which will assign a single footprint to each pixel
-    imageArr[yInds,xInds]=data
+    #imageArr[yInds,xInds]=data
+    imageArr = np.copy(self.array)
 
     # set geolocation information (note geotiffs count down from top edge in Y)
-    geotransform = (minX, res, 0, maxY, 0, -1*res)
+    #geotransform = (minX, res, 0, maxY, 0, -1*res) #original
+    geotransform = (self.xOrigin, self.pixelWidth, 0, self.yOrigin, 0, self.pixelHeight)
 
     # load data in to geotiff object
-    dst_ds = gdal.GetDriverByName('GTiff').Create(filename, nX, nY, 1, gdal.GDT_Float32)
+    dst_ds = gdal.GetDriverByName('GTiff').Create(filename, self.nX, self.nY, 1, gdal.GDT_Float32)
 
     dst_ds.SetGeoTransform(geotransform)    # specify coords
     srs = osr.SpatialReference()            # establish encoding
