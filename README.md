@@ -39,14 +39,34 @@ lvis.setElevations()
 *This example code reads in the entire dataset into RAM, and then sets the elevation arrays so the data is now ready to be processed. In order to  subset the data into a smaller amount, it is possible to set some bounds. Please refer  to the usage example given in the [original README](https://github.com/edinburgh-university-OOSA/assignment_2020/blob/master/README.md) to do this.*
 
 
+## processLVIS .py 
+---
+In this script a class (**lvisGround**) is created that inherits from the **lvisData** class (in *lvisClass.py* script) and adds the following additional methods to process LVIS data (HDF5 file): 
+  - **estimateGround()** - calls on the appropriate other methods in the class to process waveforms and estimate ground. Populates *self.zG*. 
+  - **setThreshold()** - sets a noise threshold 
+  - **CofG()** - finds center of gravity for all waveforms in the file to generate a new array that populates *self.zG*. This represents the estimated ground elevation. 
+  - **findStats()** - finds standard deviation and mean of noise. Populates *self.meanNoise* and *self.stdevNoise*. 
+  - **denoise()** - denoises waveform data, populating *self.denoised*. 
 
+#### *Usage Example*
+
+```python
+#import
+from processLVIS import lvisGround
+#initialise class
+lvis = lvisData(inName)
+#set the elevation arrays  
+lvis.setElevations()
+lvis.estimateGround()
+```
+*This example code reads in the entire dataset into RAM, sets the elevation arrays and runs a series of methods to estimate the ground elevation from each waveform. It is recommended to subset the data by using bounds (see above) in order to minimise issues with processing time.*
 
 
 
 
 ## task1 .py 
 ---
-This script can be used to process a single LVIS flightline (.h5) into a DEM of any resolution required by the user. 
+This script can be used to process a single LVIS flightline (HDF5 file) into a DEM of any resolution required by the user. 
 
 A series of inputs can be defined at the commandline by the user, or left as default. These options include: 
 - Input filename 
