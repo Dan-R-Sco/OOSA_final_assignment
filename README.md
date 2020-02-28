@@ -63,6 +63,27 @@ lvis.estimateGround()
 
 
 
+## handleTiff .py 
+---
+
+This script contains a class containing methods that can be used to write and read geotiff files. It inherits from the **lvisGround()** class in the **processLVIS. py** script. Methods include: 
+- **writeTiff(self, data, res, filename, epsg=3031)** - This takes an array RAM (data), a resolution (user specified - in m), an output filename and epsg projection to write a geotiff to disk. 
+- **readTiff(self, filename, epsg=3031)** - This method can read a geotiff into RAM  
+
+#### *Usage Example*
+
+```python
+#import
+from processLVIS import lvisGround
+#initialise class
+lvis = tiffHandle(inName)
+#set the elevation arrays  
+lvis.setElevations()
+lvis.estimateGround()
+lvis.reproject(4326,3031)
+lvis.writeTiff(self.zG, res, outName)
+```
+*This example code initialises a tiffHandle() class object, reads in the entire dataset (inName) into RAM, sets the elevation arrays and runs a series of methods to estimate the ground elevation from each waveform. It then reprojects the array from WGS 84 (4326) to Antarctic Polar Stereographic (3031) before writing a geotiff to disk (self.zG sets the ground elevations to be the input data, resolution and outName are specified by the user). Usually run through the task1 .py and task2 .py scripts which both feature a command line parser for these user inputs.*
 
 ## task1 .py 
 ---
