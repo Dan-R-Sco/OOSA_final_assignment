@@ -8,6 +8,7 @@ from gdal import Warp
 import numpy as np
 import argparse
 import os
+import time
 import rasterio
 from rasterio.merge import merge
 
@@ -21,9 +22,9 @@ def getCmdArgs():
     Read commandline arguments
     '''
     p = argparse.ArgumentParser(description=("Command line parser to provide filename and resolution"))
-    p.add_argument("--input", dest ="inFilename", type=str, default="/home/s2002365/oosa/project/code/0582360.tif", help=("Input file \nDefault = 2015 Mosaicked Raster"))
+    p.add_argument("--input", dest ="inFilename", type=str, default="/home/s2002365/oosa/project/code/merged_2015_slim.tif", help=("Input file \nDefault = 2015 Mosaicked Raster"))
     #p.add_argument("--output", dest ="outName", type=str, default="data.tif", help=("Input file \nDefault = data.tif"))
-    p.add_argument("--res", dest = "res", type=int, default=100, help=("Resolution of data processing \nDefault=10m"))
+    p.add_argument("--res", dest = "res", type=int, default=100, help=("Resolution of data processing \nDefault=100m"))
     p.add_argument("--subset", dest = "subset", type=int, default=3)
     cmdargs = p.parse_args()
     return cmdargs
@@ -36,12 +37,12 @@ def mergeTiffs():
     '''Merges subsetted 2015 tiffs'''
 
     path = '/home/s2002365/oosa/project/code'
-    out_file = '/home/s2002365/oosa/project/code/merged_2015.tif'
-    rasters_2015 = [f for f in os.listdir(path) if f.endswith('.tif') and not f.endswith('data.tif')]
+    out_file = '/home/s2002365/oosa/project/code/merged_2015_slim.tif'
+    rasters_2015 = [f for f in os.listdir(path) if f.endswith('.tif')and not f.endswith('_09.tif') and not f.endswith('merged_2015.tif')] # and not f.endswith('0692640.tif') and not f.endswith('0692641.tif') and not f.endswith('0692642.tif')]
     unmerged_2015 = []
     for raster in rasters_2015:
         src = rasterio.open(raster)
-        unmerged_2015.append(src) #works in python shell when testing
+        unmerged_2015.append(src)
 
     # Merge function returns merged single raster and transform info
     merge_2015, out_trans = merge(unmerged_2015)
@@ -60,6 +61,7 @@ def mergeTiffs():
     #write raster to disk
     with rasterio.open(out_file, "w", **out_meta) as dest:
         dest.write(merge_2015)
+        print("Image written to ", out_file)
 
 ##########################################
 
@@ -73,8 +75,7 @@ class gapFillTiff(tiffHandle):
 
         window = 30
         self.array = np.copy(data)
-        print(self.array.shape)#accounts for impact of array edg
-        for i in range(window,(self.nY-window)):
+        for i in range(window,(self.nY-window)): #accounts for impact of array edge
             for j in range(window, (self.nX-window)):
                 if self.array[i][j] == -999.0:
                     box = self.array[i-window: i+window, j-window: j+window] #creates temp variable for window array
@@ -90,7 +91,6 @@ class gapFillTiff(tiffHandle):
                     #calculate focal mean
                     if cellsVisited > 0:
                         focalMean = tempFocalSum/cellsVisited
-                    print(tempFocalSum, cellsVisited, focalMean)
                     #fill in gaps in array with focal mean
                     if focalMean > 0:
                         self.array[i][j] = focalMean
@@ -108,13 +108,10 @@ if __name__ == '__main__':
   subset =cmdargs.subset
   res = cmdargs.res
 
-  path = '/geos/netdata/avtrain/data/3d/oosa/assignment/lvis/2015/'
-  h5_files = [f for f in os.listdir(path) if f.endswith('.h5') and not f.endswith('067952.h5') and not f.endswith('071670.h5') and not f.endswith('043439.h5') and not f.endswith('069267.h5')] #produces list of h5 files in 2015 directory (not including oversea flight lines)
+  path = '/geos/netdata/avtrain/data/3d/oosa/assignment/lvis/2009/'
+  h5_files = [f for f in os.listdir(path) if f.endswith('.h5')]  #produces list of h5 files in 2009 directory (not including oversea flight lines)
   for i in h5_files:
       inName= str(path) + str(i)
-      #outName = str(i[26:-3]) + '.tif'
-      #print(outName)
-      #print(inName)
       b=tiffHandle(inName,onlyBounds=True)
 
       #define subset size
@@ -129,7 +126,7 @@ if __name__ == '__main__':
               x1=b.bounds[0] + ((j+1)*subset_width)
               y1=b.bounds[0] + ((k+1)*subset_height)
 
-              outName = str(i[26:-3]) + str(j) + '.tif'
+              outName = str(i[26:-3]) + str(j) + '_09.tif'
 
               lvis=tiffHandle(inName,minX=x0,minY=y0,maxX=x1,maxY=y1)
 
@@ -142,10 +139,11 @@ if __name__ == '__main__':
   STAGE 2: merge the subsetted 2015 tiffs into one mosaicked raster
   mergeTiffs()'''
 
-
   '''STAGE 3: fill the gaps of the mosaicked raster'''
   filename = cmdargs.inFilename
+  start_time = time.time()
   b=gapFillTiff()
   b.readTiff(filename)
   b.gapFill(b.data)
-  b.writeTiff(b.array, 100, "gapFillTest5.tif")
+  b.writeTiff(b.array, 100, "gapFill_2015_slim.tif")
+  print("My program took "+ str(time.time() - start_time) + " seconds to run")
