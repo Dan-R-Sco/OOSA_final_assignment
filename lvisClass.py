@@ -5,9 +5,10 @@ with methods to read
 '''
 
 ###################################
+
+# import necessary packages
 import numpy as np
 import h5py
-
 
 ###################################
 

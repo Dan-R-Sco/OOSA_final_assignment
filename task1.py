@@ -1,7 +1,11 @@
 
-##########################################
-# import necessary packages
+'''
+Script to process a single LVIS flight line into a DEM
+'''
 
+##########################################
+
+# import necessary packages
 from osgeo import gdal             # package for handling geotiff data
 from osgeo import osr              # package for handling projection information
 from gdal import Warp
@@ -9,7 +13,7 @@ import numpy as np
 import argparse
 import os
 
-
+#import other classes
 from handleTiff import tiffHandle
 
 ##########################################
@@ -43,8 +47,8 @@ if __name__ == '__main__':
   subset = cmdargs.subset
 
   # if using bounds
-    # initialise class, find bounds
   if bounds == "Yes":
+      #initialise class
       b=tiffHandle(inName,onlyBounds=True)
 
       # set some bounds
@@ -53,7 +57,7 @@ if __name__ == '__main__':
       x1=(b.bounds[2]-b.bounds[0])/subset+b.bounds[0]
       y1=(b.bounds[3]-b.bounds[1])/subset+b.bounds[1]
 
-      #initiate class, reading in specified bounds
+      #initialise class, reading in specified bounds
       lvis=tiffHandle(inName,minX=x0,minY=y0,maxX=x1,maxY=y1)
 
   else:

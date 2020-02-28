@@ -5,10 +5,12 @@ Some example functions for processing LVIS data
 
 #######################################
 
+# import necessary packages
 import numpy as np
 from pyproj import Proj, transform
 from scipy.ndimage.filters import gaussian_filter1d
 
+#import other classes
 from lvisClass import lvisData
 
 #######################################
