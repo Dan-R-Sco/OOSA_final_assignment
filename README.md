@@ -20,7 +20,7 @@ It creates a class (**lvisData**) to hold LVIS data
 with methods to read. Please refer to the [original README](https://github.com/edinburgh-university-OOSA/assignment_2020/blob/master/README.md) for more detail. 
 
 ### *Methods include*: 
- - **readLVIS()** - reads LVIS data from input file 
+ - **readLVIS()** - reads LVIS data from input file. **self.nodataflag added by me** 
  - **setElevations()** - decodes LVIS's RAM efficient elevation format and produces an array of elevations per waveform bin
  - **getOneWave()** - returns a single waveform as an array 
  - **dumpCoords()** - returns all coords as two arrays 
